@@ -28,3 +28,10 @@ Ikuti langkah-langkah berikut untuk menjalankan backend secara lokal.
    ```bash
    git clone https://github.com/Jaga-Mental-Dev/jaga-mental-backend.git
    cd jaga-mental-backend
+   npm run start //untuk menjalankan
+   npm run start-dev //untuk mode developer
+   // akan tampil port http://localhost:8080
+
+### Api data flow
+
+![WhatsApp Image 2024-11-24 at 19 16 31](https://github.com/user-attachments/assets/9b0cc072-5246-49e4-9c49-316c55d3e644)
