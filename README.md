@@ -16,8 +16,8 @@ Backend untuk **Jaga-Mental**, aplikasi yang mendukung pengelolaan kesehatan men
 
 ## Instalasi
 ### Prasyarat
-- Node.js versi 16 atau lebih tinggi
-- npm atau pnpm sebagai package manager
+* Node.js versi 16 atau lebih tinggi
+* npm sebagai package manager
 
 ### Langkah-langkah
 1. Clone repository ini:
@@ -31,75 +31,86 @@ Backend untuk **Jaga-Mental**, aplikasi yang mendukung pengelolaan kesehatan men
 ```
    npm run start 
    npm run start-dev untuk mode developer
-   // akan tampil port http://localhost:8080
 ```
+Server akan berjalan di http://localhost:8080.
 
-### Api data flow
+## Api data flow
+
 
 ![WhatsApp Image 2024-11-24 at 19 16 31](https://github.com/user-attachments/assets/9b0cc072-5246-49e4-9c49-316c55d3e644)
 
 1. Deteksi Selfie:
-   - Pengguna mengambil foto selfie melalui aplikasi Android.
-   - Foto dikirim ke Main API Server.
-   - Main API Server mengirimkan data ke Selfie Recognition API untuk mendeteksi emosi pengguna.
-   - Data hasil analisis dikembalikan ke Main API Server dan disimpan bersama dengan data jurnal pengguna.
+   * Pengguna mengambil foto selfie melalui aplikasi Android.
+   * Foto dikirim ke Main API Server.
+   * Main API Server mengirimkan data ke Selfie Recognition API untuk mendeteksi emosi pengguna.
+   * Data hasil analisis dikembalikan ke Main API Server dan disimpan bersama dengan data jurnal pengguna.
 2. Pengelolaan Jurnal:
-   - Pengguna memasukkan teks jurnal melalui aplikasi Android.
-   - Teks jurnal dikirim ke Main API Server.
-   - Main API Server meneruskan teks ke Text Emotion Recognition API.
-   - Hasil analisis emosi jurnal disimpan di database dan dikembalikan ke aplikasi Android.
+   * Pengguna memasukkan teks jurnal melalui aplikasi Android.
+   * Teks jurnal dikirim ke Main API Server.
+   * Main API Server meneruskan teks ke Text Emotion Recognition API.
+   * Hasil analisis emosi jurnal disimpan di database dan dikembalikan ke aplikasi Android.
 
 
 ### Database
 ![image](https://github.com/user-attachments/assets/f0809c8b-6eaa-45f1-ada9-36ed9db9febb)
 ### Penjelasan:
 1. Users Table:
-   - Menyimpan data pengguna seperti id, nama, email, dan password.
-   - Relasi dengan tabel journals untuk mencatat jurnal milik pengguna.
+   * Menyimpan data pengguna seperti id, nama, email, dan password.
+   * Relasi dengan tabel journals untuk mencatat jurnal milik pengguna.
 2. Journals Table:
-   - Menyimpan data jurnal pengguna seperti id, user_id, tanggal, teks_jurnal, dan hasil_analisis.
+   * Menyimpan data jurnal pengguna seperti id, user_id, tanggal, teks_jurnal, dan hasil_analisis.
 3. Emotions Table:
-   - Menyimpan data hasil analisis emosi, baik dari selfie maupun teks jurnal.
-   - Kolom type menentukan apakah data berasal dari selfie (selfie) atau teks (text).
+   * Menyimpan data hasil analisis emosi, baik dari selfie maupun teks jurnal.
+   * Kolom type menentukan apakah data berasal dari selfie (selfie) atau teks (text).
 
 Relasi:
 Users → Journals: Relasi satu ke banyak, di mana satu pengguna dapat memiliki banyak jurnal.
 Journals → Emotions: Relasi satu ke satu, di mana setiap jurnal memiliki hasil analisis emosi.
 ### Diagram Architecture Google Cloud Platform
-![image](https://github.com/user-attachments/assets/cec0cb5c-1c2a-4e23-9d49-2183e9002664)
 
-Penjelasan:
+![Backend Database (2)](https://github.com/user-attachments/assets/c6d61ca4-d903-441f-ad75-b892ab1bfce2)
 
-Aplikasi Android:
 
-Front-end utama yang digunakan pengguna untuk berinteraksi dengan sistem.
-Main API Server:
+**Penjelasan:**
 
-Berfungsi sebagai pusat komunikasi antara aplikasi Android dan layanan lainnya.
-Mengelola permintaan untuk autentikasi, pengelolaan jurnal, dan analisis emosi.
-Selfie Recognition API:
+1. User
+   * Pengguna akhir (user) berinteraksi dengan sistem melalui Aplikasi Android atau web.
+   * Mereka dapat mengunggah data, seperti foto selfie atau jurnal teks, yang akan diproses oleh sistem backend.
+2. Firebase Auth
+   * Digunakan untuk autentikasi pengguna, memastikan hanya pengguna terverifikasi yang dapat mengakses layanan.
+   * Mendukung metode login seperti email-password atau autentikasi pihak ketiga (Google Sign-In).
+3. Google Cloud Run
+   * Menjalankan aplikasi backend secara serverless.
+   * Cloud Run memproses permintaan pengguna, berinteraksi dengan database, dan memanggil layanan lainnya seperti API analisis emosi.
+   * Mendukung beban kerja tinggi dengan penskalaan otomatis.
+4. Supabase
+   * Merupakan database relasional yang digunakan untuk menyimpan data aplikasi.
+   * Data yang disimpan meliputi informasi pengguna, jurnal yang ditulis, dan hasil analisis emosi.
+   * Tabel dalam database:
+        * Users Table: Informasi pengguna (ID, nama, email, dll.).
+        * Journals Table: Jurnal teks pengguna.
+        * Emotions Table: Hasil analisis emosi dari selfie atau teks jurnal.
+5. Text Emotion Recognition API
+   * Model machine learning atau layanan API eksternal yang digunakan untuk menganalisis emosi berdasarkan teks jurnal.
+   * Hasil analisis berupa kategori emosi seperti "sedih", "bahagia", "marah", dll.
+6. Selfie Recognition API
+   * Model machine learning atau layanan API eksternal yang digunakan untuk mendeteksi emosi pengguna dari foto selfie.
+   * Hasil analisis berupa kategori emosi atau metrik seperti "tersenyum", "sedih", "neutral".
+7. Aplikasi Android
+   * Frontend aplikasi yang digunakan oleh pengguna untuk mengakses layanan.
+   * Mengirim data selfie atau teks jurnal ke backend melalui API yang di-host di Cloud Run.
+   * Menampilkan hasil analisis emosi dari backend kepada pengguna.
 
-Layanan khusus untuk menganalisis emosi berdasarkan foto selfie pengguna.
-Menggunakan model machine learning yang di-host di Google Cloud AI Platform.
-Text Emotion Recognition API:
-
-Layanan untuk menganalisis emosi berdasarkan teks jurnal.
-Model machine learning untuk analisis teks juga di-host di Google Cloud AI Platform.
-Google Cloud Storage:
-
-Menyimpan file seperti foto selfie yang diunggah pengguna.
-Google Cloud Firestore:
-
-Digunakan untuk menyimpan data seperti jurnal, hasil analisis, dan metadata pengguna.
-Google Cloud Functions:
-
-Fungsi serverless untuk menangani tugas-tugas spesifik seperti pemrosesan data secara asinkron.
 
 ---
 ### Teknologi yang Digunakan
-#### Node.js  : Runtime JavaScript untuk backend.
+**Node.js**  : Runtime JavaScript untuk backend.
+
 **Express.js**: Framework untuk membangun API RESTful.
+
 **Google Cloud Platform**: Infrastruktur hosting aplikasi, penyimpanan data, dan layanan machine learning.
+
 **Postman**: Alat untuk pengujian API.
+
 **Supabase**: Alternatif backend untuk autentikasi dan manajemen database (opsional).
 
